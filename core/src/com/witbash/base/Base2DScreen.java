@@ -38,7 +38,6 @@ public class Base2DScreen implements Screen, InputProcessor {
 
     @Override
     public void render(float delta) {
-
     }
 
     @Override
@@ -49,11 +48,16 @@ public class Base2DScreen implements Screen, InputProcessor {
         screenBounds.setBottom(0);
 
         float aspect = width / (float) height;
-        worldBounds.setHeight(42f);
-        worldBounds.setWidth(42f*aspect);
+        worldBounds.setHeight(1f);
+        worldBounds.setWidth(1f * aspect);
         MatrixUtils.calcTransitionMatrix(worldToGl, worldBounds, glBounds);
         batch.setProjectionMatrix(worldToGl);
         MatrixUtils.calcTransitionMatrix(screenToWorld, screenBounds, worldBounds);
+        resize(worldBounds);
+    }
+
+    public void resize(Rect worldBounds) {
+
     }
 
     @Override
@@ -117,7 +121,6 @@ public class Base2DScreen implements Screen, InputProcessor {
 
     public boolean touchUp(Vector2 touch, int pointer) {
         System.out.println("touchUp touch.x = " + touch.x + " touch.y = " + touch.y);
-
         return false;
     }
 
