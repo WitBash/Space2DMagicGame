@@ -5,16 +5,15 @@ import com.witbash.base.ActionListener;
 import com.witbash.base.GameButton;
 import com.witbash.math.Rect;
 
-public class ButtonClose extends GameButton {
+public class ButtonPlay extends GameButton {
 
-    public ButtonClose(TextureAtlas atlas, ActionListener actionListener) {
-        super(atlas.findRegion("Close"), actionListener);
+    public ButtonPlay(TextureAtlas atlas, ActionListener actionListener) {
+        super(atlas.findRegion("play"), actionListener);
     }
 
     @Override
     public void resize(Rect worldBounds) {
-        setRight(0.38f);
-        setTop(0.5f);
+        setRight(0.23f);
+        setTop(0.38f);
     }
 }
-

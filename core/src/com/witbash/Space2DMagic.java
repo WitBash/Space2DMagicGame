@@ -6,6 +6,6 @@ import com.witbash.screen.MenuScreen;
 public class Space2DMagic extends Game {
     @Override
     public void create() {
-        setScreen(new MenuScreen());
+        setScreen(new MenuScreen(this));
     }
 }
