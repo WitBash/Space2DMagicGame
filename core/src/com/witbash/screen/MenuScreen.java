@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.witbash.Space2DMagic;
+import com.witbash.base.ActionListener;
 import com.witbash.base.Base2DScreen;
 import com.witbash.math.Rect;
 import com.witbash.sprite.Background;
@@ -15,7 +16,7 @@ import com.witbash.sprite.ButtonClose;
 import com.witbash.sprite.ButtonPlay;
 import com.witbash.sprite.Star;
 
-public class MenuScreen extends Base2DScreen {
+public class MenuScreen extends Base2DScreen implements ActionListener {
 
     private static final int STAR_COUNT = 256;
 
@@ -31,6 +32,7 @@ public class MenuScreen extends Base2DScreen {
     private Game playScreen;
 
     public MenuScreen(Game playScreen) {
+        super();
         this.playScreen = playScreen;
     }
 
@@ -44,8 +46,8 @@ public class MenuScreen extends Base2DScreen {
         for (int i = 0; i < stars.length; i++) {
             stars[i] = new Star(textureAtlas);
         }
-        buttonPlay = new ButtonPlay(textureAtlas);
-        buttonClose = new ButtonClose(textureAtlas);
+        buttonPlay = new ButtonPlay(textureAtlas, this);
+        buttonClose = new ButtonClose(textureAtlas, this);
     }
 
     @Override
@@ -70,11 +72,7 @@ public class MenuScreen extends Base2DScreen {
             stars[i].draw(batch);
         }
         buttonPlay.draw(batch);
-        buttonPlay.setRight(0.23f);
-        buttonPlay.setTop(0.38f);
         buttonClose.draw(batch);
-        buttonClose.setRight(0.38f);
-        buttonClose.setTop(0.5f);
         batch.end();
     }
 
@@ -97,21 +95,21 @@ public class MenuScreen extends Base2DScreen {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        if (buttonClose.isMe(touch)) buttonClose.setScale(0.5f);
-        if (buttonPlay.isMe(touch)) buttonPlay.setScale(0.5f);
+        buttonClose.touchDown(touch, pointer);
+        buttonPlay.touchDown(touch, pointer);
         return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        if (buttonClose.isMe(touch)) {
-            buttonClose.setScale(1f);
-            Gdx.app.exit();
-        }
-        if (buttonPlay.isMe(touch)) {
-            buttonPlay.setScale(1f);
-            playScreen.setScreen(new PlayScreen());
-        }
-        return false;
+        buttonClose.touchUp(touch, pointer);
+        buttonPlay.touchUp(touch, pointer);
+        return super.touchUp(touch, pointer);
+    }
+
+    @Override
+    public void actionPerformed(Object src) {
+        if (src == buttonClose) Gdx.app.exit();
+        if (src == buttonPlay) playScreen.setScreen(new PlayScreen());
     }
 }

@@ -12,7 +12,7 @@ import com.witbash.sprite.Star;
 
 public class PlayScreen extends Base2DScreen {
 
-    private static final int STAR_COUNT = 256;
+    private static final int STAR_COUNT = 156;
 
     private Background background;
     private Texture bgTexture;
