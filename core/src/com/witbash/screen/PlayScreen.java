@@ -5,14 +5,17 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
 import com.witbash.base.Base2DScreen;
 import com.witbash.math.Rect;
+import com.witbash.pool.BulletPool;
 import com.witbash.sprite.Background;
+import com.witbash.sprite.MainShip;
 import com.witbash.sprite.Star;
 
 public class PlayScreen extends Base2DScreen {
 
-    private static final int STAR_COUNT = 156;
+    private static final int STAR_COUNT = 128;
 
     private Background background;
     private Texture bgTexture;
@@ -20,23 +23,30 @@ public class PlayScreen extends Base2DScreen {
     private TextureAtlas textureAtlas;
     private Star[] stars;
 
+    private MainShip mainShip;
+
+    private BulletPool bulletPool;
 
     @Override
     public void show() {
         super.show();
         bgTexture = new Texture("bg.png");
         background = new Background(new TextureRegion(bgTexture));
-        textureAtlas = new TextureAtlas("menuAtlasNew.pack");
+        textureAtlas = new TextureAtlas("mainAtlas.tpack");
         stars = new Star[STAR_COUNT];
         for (int i = 0; i < stars.length; i++) {
             stars[i] = new Star(textureAtlas);
         }
+        bulletPool = new BulletPool();
+        mainShip = new MainShip(textureAtlas, bulletPool);
     }
 
     @Override
     public void render(float delta) {
         super.render(delta);
         update(delta);
+        checkCollisions();
+        deleteAllDestroyed();
         draw();
     }
 
@@ -44,6 +54,16 @@ public class PlayScreen extends Base2DScreen {
         for (int i = 0; i < stars.length; i++) {
             stars[i].update(delta);
         }
+        mainShip.update(delta);
+        bulletPool.updateActiveObjects(delta);
+    }
+
+    public void checkCollisions() {
+
+    }
+
+    public void deleteAllDestroyed() {
+        bulletPool.freeAllDestroyedActiveObjects();
     }
 
     public void draw() {
@@ -54,6 +74,8 @@ public class PlayScreen extends Base2DScreen {
         for (int i = 0; i < stars.length; i++) {
             stars[i].draw(batch);
         }
+        mainShip.draw(batch);
+        bulletPool.drawActiveObjects(batch);
         batch.end();
     }
 
@@ -63,6 +85,7 @@ public class PlayScreen extends Base2DScreen {
         for (int i = 0; i < stars.length; i++) {
             stars[i].resize(worldBounds);
         }
+        mainShip.resize(worldBounds);
     }
 
     @Override
@@ -70,5 +93,27 @@ public class PlayScreen extends Base2DScreen {
         bgTexture.dispose();
         textureAtlas.dispose();
         super.dispose();
+    }
+
+    @Override
+    public boolean keyDown(int keycode) {
+        mainShip.keyDown(keycode);
+        return false;
+    }
+
+    @Override
+    public boolean keyUp(int keycode) {
+        mainShip.keyUp(keycode);
+        return false;
+    }
+
+    @Override
+    public boolean touchDown(Vector2 touch, int pointer) {
+        return super.touchDown(touch, pointer);
+    }
+
+    @Override
+    public boolean touchUp(Vector2 touch, int pointer) {
+        return super.touchUp(touch, pointer);
     }
 }
