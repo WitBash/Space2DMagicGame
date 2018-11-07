@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.witbash.base.Base2DScreen;
 import com.witbash.math.Rect;
 import com.witbash.pool.BulletPool;
+import com.witbash.sound.SoundGame;
 import com.witbash.sprite.Background;
 import com.witbash.sprite.MainShip;
 import com.witbash.sprite.Star;
@@ -27,6 +28,8 @@ public class PlayScreen extends Base2DScreen {
 
     private BulletPool bulletPool;
 
+    private SoundGame soundGame=new SoundGame();
+
     @Override
     public void show() {
         super.show();
@@ -39,6 +42,7 @@ public class PlayScreen extends Base2DScreen {
         }
         bulletPool = new BulletPool();
         mainShip = new MainShip(textureAtlas, bulletPool);
+        soundGame.musicPlayScreen.play();
     }
 
     @Override
@@ -59,7 +63,6 @@ public class PlayScreen extends Base2DScreen {
     }
 
     public void checkCollisions() {
-
     }
 
     public void deleteAllDestroyed() {
@@ -92,6 +95,8 @@ public class PlayScreen extends Base2DScreen {
     public void dispose() {
         bgTexture.dispose();
         textureAtlas.dispose();
+        soundGame.musicPlayScreen.dispose();
+        mainShip.soundBulletDispose();
         super.dispose();
     }
 
@@ -109,11 +114,13 @@ public class PlayScreen extends Base2DScreen {
 
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
-        return super.touchDown(touch, pointer);
+        mainShip.touchDown(touch, pointer);
+        return false;
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        return super.touchUp(touch, pointer);
+        mainShip.touchUp(touch, pointer);
+        return false;
     }
 }

@@ -10,6 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.witbash.base.ActionListener;
 import com.witbash.base.Base2DScreen;
 import com.witbash.math.Rect;
+import com.witbash.sound.SoundGame;
 import com.witbash.sprite.Background;
 import com.witbash.sprite.ButtonClose;
 import com.witbash.sprite.ButtonPlay;
@@ -30,6 +31,8 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
 
     private Game playScreen;
 
+    private SoundGame soundGame = new SoundGame();
+
     public MenuScreen(Game playScreen) {
         super();
         this.playScreen = playScreen;
@@ -47,6 +50,7 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
         }
         buttonPlay = new ButtonPlay(textureAtlas, this);
         buttonClose = new ButtonClose(textureAtlas, this);
+        soundGame.musicMenuScreen.play();
     }
 
     @Override
@@ -89,6 +93,7 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
     public void dispose() {
         bgTexture.dispose();
         textureAtlas.dispose();
+        soundGame.musicMenuScreen.dispose();
         super.dispose();
     }
 
