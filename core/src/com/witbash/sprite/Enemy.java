@@ -8,6 +8,7 @@ import com.witbash.pool.BulletPool;
 
 public class Enemy extends Ship {
 
+    private Vector2 vStarting = new Vector2();
     private Vector2 v0 = new Vector2();
 
 
@@ -21,11 +22,18 @@ public class Enemy extends Ship {
     @Override
     public void update(float delta) {
         super.update(delta);
-        pos.mulAdd(v, delta);
+        pos.mulAdd(speedOfAppearanceOfTheEnemyShip(), delta);
+        reloadTimer += delta;
+        if (reloadTimer > reloadInterval) {
+            shoot();
+            reloadTimer = 0f;
+        }
+        if (isOutside(worldBounds)) destroy();
     }
 
     public void set(
-            TextureRegion [] regions,
+            TextureRegion[] regions,
+            Vector2 vStarting,
             Vector2 v0,
             TextureRegion bulletRegion,
             float bulletHeight,
@@ -36,14 +44,20 @@ public class Enemy extends Ship {
             int hp
     ) {
         this.regions = regions;
+        this.vStarting.set(vStarting);
         this.v0.set(v0);
         this.bulletRegion = bulletRegion;
         this.bulletHeight = bulletHeight;
-        this.bulletV.set(0f,bulletVY);
+        this.bulletV.set(0f, bulletVY);
         this.bulletDamage = bulletDamage;
         this.reloadInterval = reloadInterval;
         this.hp = hp;
         setHeightProportion(height);
-        v.set(v0);
+    }
+
+    private Vector2 speedOfAppearanceOfTheEnemyShip() {
+        if (getTop() > worldBounds.getTop()) {
+            return v.set(vStarting);
+        } else return v.set(v0);
     }
 }
