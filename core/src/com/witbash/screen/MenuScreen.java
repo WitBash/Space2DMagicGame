@@ -50,6 +50,7 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
         }
         buttonPlay = new ButtonPlay(textureAtlas, this);
         buttonClose = new ButtonClose(textureAtlas, this);
+        soundGame.musicMenuScreen.setLooping(true);
         soundGame.musicMenuScreen.play();
     }
 

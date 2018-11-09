@@ -3,15 +3,16 @@ package com.witbash.sprite;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.math.Vector2;
-import com.witbash.base.Sprite;
+import com.witbash.base.Ship;
 import com.witbash.math.Rect;
 import com.witbash.pool.BulletPool;
 import com.witbash.sound.SoundGame;
 
-public class MainShip extends Sprite {
+public class MainShip extends Ship {
 
-    Vector2 v0 = new Vector2(0.5f, 0);
-    Vector2 v = new Vector2();
+    private static final int INVALID_POINTER = -1;
+
+    private Vector2 v0 = new Vector2(0.5f, 0);
 
     private Vector2 vLeft = new Vector2();
     private Vector2 vRight = new Vector2();
@@ -19,21 +20,24 @@ public class MainShip extends Sprite {
     private boolean pressedLeft;
     private boolean pressedRight;
 
-    private BulletPool bulletPool;
-    private TextureAtlas atlas;
+    private int leftPointer = INVALID_POINTER;
+    private int rightPointer = INVALID_POINTER;
 
-    private Rect worldBounds;
     private SoundGame soundGame = new SoundGame();
 
-    float xLeft;
-    float xRight;
+    private float xLeft;
+    private float xRight;
 
 
     public MainShip(TextureAtlas atlas, BulletPool bulletPool) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
-        this.atlas = atlas;
         setHeightProportion(0.15f);
         this.bulletPool = bulletPool;
+        this.bulletV.set(0, 0.5f);
+        this.bulletHeight = 0.01f;
+        this.bulletDamage = 1;
+        this.reloadInterval = 0.2f;
+        this.bulletRegion = atlas.findRegion("bulletMainShip");
     }
 
     @Override
@@ -43,11 +47,16 @@ public class MainShip extends Sprite {
         else if (!checkWorldBoundsRight()) pos.mulAdd(vLeft, delta);
         xLeft = getLeft();
         xRight = getRight();
+        reloadTimer += delta;
+        if (reloadTimer > reloadInterval) {
+            shoot();
+            reloadTimer = 0f;
+        }
     }
 
     @Override
     public void resize(Rect worldBounds) {
-        this.worldBounds = worldBounds;
+        super.resize(worldBounds);
         setBottom(worldBounds.getBottom() + 0.05f);
     }
 
@@ -93,18 +102,33 @@ public class MainShip extends Sprite {
     public boolean touchDown(Vector2 touch, int pointer) {
         if (touch.x >= pos.x) { // в зависимости от того, в какой
             // стороне от корабля произошло нажатие
+            if (rightPointer != INVALID_POINTER) return false;
+            rightPointer = pointer;
             moveRight();
         } else {
+            if (leftPointer != INVALID_POINTER) return false;
+            leftPointer = pointer;
             moveLeft();
         }
-        return false;
+        return super.touchDown(touch, pointer);
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
-        stop();
-        return false;
+        if (pointer == leftPointer) {
+            leftPointer = INVALID_POINTER;
+            if (rightPointer != INVALID_POINTER) {
+                moveRight();
+            } else stop();
+        } else if (pointer == rightPointer) {
+            rightPointer = INVALID_POINTER;
+            if (leftPointer != INVALID_POINTER) {
+                moveLeft();
+            } else stop();
+        }
+        return super.touchUp(touch, pointer);
     }
+
 
     public void moveRight() {
         v.set(v0);
@@ -120,13 +144,6 @@ public class MainShip extends Sprite {
         v.setZero();
         vLeft.setZero();
         vRight.setZero();
-    }
-
-    private void shoot() {
-        Bullet bullet = bulletPool.obtain();
-        bullet.set(this, atlas.findRegion("bulletMainShip"),
-                pos, new Vector2(0, 0.5f), 0.01f, 1, worldBounds);
-        soundGame.soundShoot.play();
     }
 
     public boolean checkWorldBoundsLeft() {

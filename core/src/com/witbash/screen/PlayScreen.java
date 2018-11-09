@@ -9,10 +9,12 @@ import com.badlogic.gdx.math.Vector2;
 import com.witbash.base.Base2DScreen;
 import com.witbash.math.Rect;
 import com.witbash.pool.BulletPool;
+import com.witbash.pool.EnemyPool;
 import com.witbash.sound.SoundGame;
 import com.witbash.sprite.Background;
 import com.witbash.sprite.MainShip;
 import com.witbash.sprite.Star;
+import com.witbash.utils.EnemiesEmmiter;
 
 public class PlayScreen extends Base2DScreen {
 
@@ -28,7 +30,10 @@ public class PlayScreen extends Base2DScreen {
 
     private BulletPool bulletPool;
 
-    private SoundGame soundGame=new SoundGame();
+    private SoundGame soundGame = new SoundGame();
+
+    private EnemyPool enemyPool;
+    private EnemiesEmmiter enemiesEmmiter;
 
     @Override
     public void show() {
@@ -42,6 +47,10 @@ public class PlayScreen extends Base2DScreen {
         }
         bulletPool = new BulletPool();
         mainShip = new MainShip(textureAtlas, bulletPool);
+
+        enemyPool = new EnemyPool(bulletPool, worldBounds);
+        enemiesEmmiter = new EnemiesEmmiter(enemyPool, worldBounds, textureAtlas);
+        soundGame.musicPlayScreen.setLooping(true);
         soundGame.musicPlayScreen.play();
     }
 
@@ -60,6 +69,9 @@ public class PlayScreen extends Base2DScreen {
         }
         mainShip.update(delta);
         bulletPool.updateActiveObjects(delta);
+
+        enemyPool.updateActiveObjects(delta);
+        enemiesEmmiter.generate(delta);
     }
 
     public void checkCollisions() {
@@ -79,6 +91,7 @@ public class PlayScreen extends Base2DScreen {
         }
         mainShip.draw(batch);
         bulletPool.drawActiveObjects(batch);
+        enemyPool.drawActiveObjects(batch);
         batch.end();
     }
 
@@ -115,12 +128,12 @@ public class PlayScreen extends Base2DScreen {
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
         mainShip.touchDown(touch, pointer);
-        return false;
+        return super.touchDown(touch, pointer);
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
         mainShip.touchUp(touch, pointer);
-        return false;
+        return super.touchUp(touch, pointer);
     }
 }
