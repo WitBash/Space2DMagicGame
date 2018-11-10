@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.witbash.base.Ship;
 import com.witbash.math.Rect;
 import com.witbash.pool.BulletPool;
-import com.witbash.sound.SoundGame;
+import com.witbash.pool.ExplosionPool;
 
 public class MainShip extends Ship {
 
@@ -23,13 +23,11 @@ public class MainShip extends Ship {
     private int leftPointer = INVALID_POINTER;
     private int rightPointer = INVALID_POINTER;
 
-    private SoundGame soundGame = new SoundGame();
-
     private float xLeft;
     private float xRight;
 
 
-    public MainShip(TextureAtlas atlas, BulletPool bulletPool) {
+    public MainShip(TextureAtlas atlas, ExplosionPool explosionPool, BulletPool bulletPool) {
         super(atlas.findRegion("main_ship"), 1, 2, 2);
         setHeightProportion(0.15f);
         this.bulletPool = bulletPool;
@@ -38,10 +36,13 @@ public class MainShip extends Ship {
         this.bulletDamage = 1;
         this.reloadInterval = 0.2f;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
+        this.explosionPool = explosionPool;
+        this.hp = 100;
     }
 
     @Override
     public void update(float delta) {
+        super.update(delta);
         if (checkWorldBoundsLeft() && checkWorldBoundsRight()) pos.mulAdd(v, delta);
         else if (!checkWorldBoundsLeft()) pos.mulAdd(vRight, delta);
         else if (!checkWorldBoundsRight()) pos.mulAdd(vLeft, delta);
@@ -158,7 +159,17 @@ public class MainShip extends Ship {
         } else return false;
     }
 
-    public void soundBulletDispose() {
-        soundGame.soundShoot.dispose();
+    public boolean isBulletCollision(Rect bullet){
+        return !(bullet.getRight() < getLeft()
+                || bullet.getLeft() > getRight()
+                || bullet.getBottom() > pos.y
+                || bullet.getTop() < getBottom());
+    }
+
+    @Override
+    public void destroy() {
+        boom();
+        hp = 0;
+        super.destroy();
     }
 }

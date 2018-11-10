@@ -5,6 +5,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.witbash.base.Ship;
 import com.witbash.math.Rect;
 import com.witbash.pool.BulletPool;
+import com.witbash.pool.EnemyPool;
+import com.witbash.pool.ExplosionPool;
+import com.witbash.utils.Regions;
 
 public class Enemy extends Ship {
 
@@ -12,10 +15,11 @@ public class Enemy extends Ship {
     private Vector2 v0 = new Vector2();
 
 
-    public Enemy(BulletPool bulletPool, Rect worldBounds) {
+    public Enemy(BulletPool bulletPool, ExplosionPool explosionPool,Rect worldBounds) {
         super();
         this.v.set(v0);
         this.bulletPool = bulletPool;
+        this.explosionPool = explosionPool;
         this.worldBounds = worldBounds;
     }
 
@@ -28,7 +32,10 @@ public class Enemy extends Ship {
             shoot();
             reloadTimer = 0f;
         }
-        if (getBottom() < worldBounds.getBottom()) destroy();
+        if (getBottom() < worldBounds.getBottom()) {
+            boom();
+            destroy();
+        }
     }
 
     public void set(
@@ -55,9 +62,23 @@ public class Enemy extends Ship {
         setHeightProportion(height);
     }
 
+    public boolean isBulletCollision(Rect bullet){
+        return !(bullet.getRight() < getLeft()
+                || bullet.getLeft() > getRight()
+                || bullet.getBottom() > getTop()
+                || bullet.getTop() < pos.y);
+    }
+
     private Vector2 speedOfAppearanceOfTheEnemyShip() {
         if (getTop() > worldBounds.getTop()) {
             return v.set(vStarting);
         } else return v.set(v0);
+    }
+
+    @Override
+    public void destroy() {
+        boom();
+        hp = 0;
+        super.destroy();
     }
 }
