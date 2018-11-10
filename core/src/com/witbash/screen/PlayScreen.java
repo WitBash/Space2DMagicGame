@@ -47,7 +47,6 @@ public class PlayScreen extends Base2DScreen {
         }
         bulletPool = new BulletPool();
         mainShip = new MainShip(textureAtlas, bulletPool);
-
         enemyPool = new EnemyPool(bulletPool, worldBounds);
         enemiesEmmiter = new EnemiesEmmiter(enemyPool, worldBounds, textureAtlas);
         soundGame.musicPlayScreen.setLooping(true);
@@ -79,6 +78,7 @@ public class PlayScreen extends Base2DScreen {
 
     public void deleteAllDestroyed() {
         bulletPool.freeAllDestroyedActiveObjects();
+        enemyPool.freeAllDestroyedActiveObjects();
     }
 
     public void draw() {

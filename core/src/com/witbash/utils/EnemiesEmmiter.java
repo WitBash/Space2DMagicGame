@@ -14,7 +14,7 @@ public class EnemiesEmmiter {
     private static final float ENEMY_SMALL_BULLET_HEIGHT = 0.01f;
     private static final float ENEMY_SMALL_BULLET_VY = -0.3f;
     private static final int ENEMY_SMALL_BULLET_DAMAGE = 1;
-    private static final float ENEMY_SMALL_RELOAD_INTERVAL = 3f;
+    private static final float ENEMY_SMALL_RELOAD_INTERVAL = 1f;
     private static final int ENEMY_SMALL_HP = 1;
 
     private static final float ENEMY_MEDIUM_HEIGHT = 0.1f;
@@ -34,9 +34,15 @@ public class EnemiesEmmiter {
     private TextureRegion[] enemySmallRegion;
     private TextureRegion[] enemyMediumRegion;
     private TextureRegion[] enemyBigRegion;
+
+    private Vector2 enemySmallVStarting = new Vector2(0, -0.4f);
     private Vector2 enemySmallV = new Vector2(0, -0.2f);
+
+    private Vector2 enemyMediumVStarting = new Vector2(0, -0.1f);
     private Vector2 enemyMediumV = new Vector2(0, -0.03f);
-    private Vector2 enemyBigV = new Vector2(0, -0.005f);
+
+    private Vector2 enemyBigVStarting = new Vector2(0, -0.2f);
+    private Vector2 enemyBigV = new Vector2(0, -0.01f);
 
     private EnemyPool enemyPool;
     private Rect worldBounds;
@@ -68,6 +74,7 @@ public class EnemiesEmmiter {
             if (type < 0.7f) {
                 enemy.set(
                         enemySmallRegion,
+                        enemySmallVStarting,
                         enemySmallV,
                         bulletRegion,
                         ENEMY_SMALL_BULLET_HEIGHT,
@@ -80,6 +87,7 @@ public class EnemiesEmmiter {
             } else if (type < 0.9f) {
                 enemy.set(
                         enemyMediumRegion,
+                        enemyMediumVStarting,
                         enemyMediumV,
                         bulletRegion,
                         ENEMY_MEDIUM_BULLET_HEIGHT,
@@ -92,6 +100,7 @@ public class EnemiesEmmiter {
             } else {
                 enemy.set(
                         enemyBigRegion,
+                        enemyBigVStarting,
                         enemyBigV,
                         bulletRegion,
                         ENEMY_BIG_BULLET_HEIGHT,
@@ -105,6 +114,7 @@ public class EnemiesEmmiter {
             enemy.setBottom(worldBounds.getTop());
             enemy.pos.x = Rnd.nextFloat(worldBounds.getLeft() + enemy.getHalfWidth(),
                     worldBounds.getRight() - enemy.getHalfWidth());
+            enemy.update(delta);
         }
     }
 }
