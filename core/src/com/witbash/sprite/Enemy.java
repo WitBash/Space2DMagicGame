@@ -28,7 +28,7 @@ public class Enemy extends Ship {
             shoot();
             reloadTimer = 0f;
         }
-        if (isOutside(worldBounds)) destroy();
+        if (getBottom() < worldBounds.getBottom()) destroy();
     }
 
     public void set(
