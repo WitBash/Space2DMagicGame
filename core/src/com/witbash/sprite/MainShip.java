@@ -37,7 +37,7 @@ public class MainShip extends Ship {
         this.reloadInterval = 0.2f;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
         this.explosionPool = explosionPool;
-        this.hp = 1;
+        this.hp = 100;
     }
 
     @Override
