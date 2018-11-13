@@ -29,7 +29,7 @@ public class MenuScreen extends Base2DScreen implements ActionListener {
     private ButtonPlay buttonPlay;
     private ButtonClose buttonClose;
 
-    private Game playScreen;
+    public static Game playScreen;
 
     private SoundGame soundGame = new SoundGame();
 

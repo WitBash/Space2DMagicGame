@@ -37,7 +37,7 @@ public class MainShip extends Ship {
         this.reloadInterval = 0.2f;
         this.bulletRegion = atlas.findRegion("bulletMainShip");
         this.explosionPool = explosionPool;
-        this.hp = 100;
+        this.hp = 1;
     }
 
     @Override
@@ -130,7 +130,6 @@ public class MainShip extends Ship {
         return super.touchUp(touch, pointer);
     }
 
-
     public void moveRight() {
         v.set(v0);
         vRight.set(v0);
@@ -159,7 +158,7 @@ public class MainShip extends Ship {
         } else return false;
     }
 
-    public boolean isBulletCollision(Rect bullet){
+    public boolean isBulletCollision(Rect bullet) {
         return !(bullet.getRight() < getLeft()
                 || bullet.getLeft() > getRight()
                 || bullet.getBottom() > pos.y
