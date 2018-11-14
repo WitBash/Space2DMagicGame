@@ -28,6 +28,8 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
 
     private static final int STAR_COUNT = 128;
 
+    private int frags;
+
     private Background background;
     private Texture bgTexture;
 
@@ -82,11 +84,11 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
         for (int i = 0; i < stars.length; i++) {
             stars[i].update(delta);
         }
+        explosionPool.updateActiveObjects(delta);
         if (!mainShip.isDestroyed()) {
             mainShip.update(delta);
             bulletPool.updateActiveObjects(delta);
             enemyPool.updateActiveObjects(delta);
-            explosionPool.updateActiveObjects(delta);
             enemiesEmmiter.generate(delta);
         } else {
             soundGame.musicPlayScreen.dispose();
@@ -101,6 +103,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
             float minDist = enemy.getHalfWidth() + mainShip.getHalfWidth();
             if (enemy.pos.dst2(mainShip.pos) < minDist * minDist) {
                 enemy.destroy();
+                mainShip.destroy();
                 return;
             }
         }
@@ -120,6 +123,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
                 if (enemy.isBulletCollision(bullet)) {
                     bullet.destroy();
                     enemy.damage(bullet.getDamage());
+                    frags++;
                 }
             }
         }
@@ -139,11 +143,11 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
         for (int i = 0; i < stars.length; i++) {
             stars[i].draw(batch);
         }
+        explosionPool.drawActiveObjects(batch);
         if (!mainShip.isDestroyed()) {
             mainShip.draw(batch);
             bulletPool.drawActiveObjects(batch);
             enemyPool.drawActiveObjects(batch);
-            explosionPool.drawActiveObjects(batch);
         } else {
             gameOver.draw(batch);
             newGame.draw(batch);
@@ -202,6 +206,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
     @Override
     public void actionPerformed(Object src) {
         if (src == newGame) {
+            frags = 0;
             MenuScreen.playScreen.setScreen(new PlayScreen());
         }
     }
