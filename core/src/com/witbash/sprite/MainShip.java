@@ -130,7 +130,6 @@ public class MainShip extends Ship {
         return super.touchUp(touch, pointer);
     }
 
-
     public void moveRight() {
         v.set(v0);
         vRight.set(v0);
@@ -159,7 +158,7 @@ public class MainShip extends Ship {
         } else return false;
     }
 
-    public boolean isBulletCollision(Rect bullet){
+    public boolean isBulletCollision(Rect bullet) {
         return !(bullet.getRight() < getLeft()
                 || bullet.getLeft() > getRight()
                 || bullet.getBottom() > pos.y

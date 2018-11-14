@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.witbash.base.ActionListener;
 import com.witbash.base.Base2DScreen;
 import com.witbash.math.Rect;
 import com.witbash.pool.BulletPool;
@@ -15,15 +16,19 @@ import com.witbash.sound.SoundGame;
 import com.witbash.sprite.Background;
 import com.witbash.sprite.Bullet;
 import com.witbash.sprite.Enemy;
+import com.witbash.sprite.GameOver;
 import com.witbash.sprite.MainShip;
+import com.witbash.sprite.NewGame;
 import com.witbash.sprite.Star;
 import com.witbash.utils.EnemiesEmmiter;
 
 import java.util.List;
 
-public class PlayScreen extends Base2DScreen {
+public class PlayScreen extends Base2DScreen implements ActionListener {
 
     private static final int STAR_COUNT = 128;
+
+    private int frags;
 
     private Background background;
     private Texture bgTexture;
@@ -41,6 +46,9 @@ public class PlayScreen extends Base2DScreen {
     private EnemiesEmmiter enemiesEmmiter;
     private ExplosionPool explosionPool;
 
+    private GameOver gameOver;
+    private NewGame newGame;
+
     @Override
     public void show() {
         super.show();
@@ -53,12 +61,14 @@ public class PlayScreen extends Base2DScreen {
         }
         explosionPool = new ExplosionPool(textureAtlas);
         bulletPool = new BulletPool();
-        mainShip = new MainShip(textureAtlas,explosionPool, bulletPool);
+        mainShip = new MainShip(textureAtlas, explosionPool, bulletPool);
         enemyPool = new EnemyPool(bulletPool, explosionPool, worldBounds);
         enemiesEmmiter = new EnemiesEmmiter(enemyPool, worldBounds, textureAtlas);
         soundGame.musicPlayScreen.setLooping(true);
         soundGame.musicPlayScreen.setVolume(0.4f);
         soundGame.musicPlayScreen.play();
+        gameOver = new GameOver(textureAtlas, this);
+        newGame = new NewGame(textureAtlas, this);
     }
 
     @Override
@@ -74,12 +84,16 @@ public class PlayScreen extends Base2DScreen {
         for (int i = 0; i < stars.length; i++) {
             stars[i].update(delta);
         }
-        mainShip.update(delta);
-        bulletPool.updateActiveObjects(delta);
-
-        enemyPool.updateActiveObjects(delta);
         explosionPool.updateActiveObjects(delta);
-        enemiesEmmiter.generate(delta);
+        if (!mainShip.isDestroyed()) {
+            mainShip.update(delta);
+            bulletPool.updateActiveObjects(delta);
+            enemyPool.updateActiveObjects(delta);
+            enemiesEmmiter.generate(delta);
+        } else {
+            soundGame.musicPlayScreen.dispose();
+            soundGame.musicMenuScreen.play();
+        }
     }
 
     public void checkCollisions() {
@@ -89,6 +103,7 @@ public class PlayScreen extends Base2DScreen {
             float minDist = enemy.getHalfWidth() + mainShip.getHalfWidth();
             if (enemy.pos.dst2(mainShip.pos) < minDist * minDist) {
                 enemy.destroy();
+                mainShip.destroy();
                 return;
             }
         }
@@ -108,10 +123,10 @@ public class PlayScreen extends Base2DScreen {
                 if (enemy.isBulletCollision(bullet)) {
                     bullet.destroy();
                     enemy.damage(bullet.getDamage());
+                    frags++;
                 }
             }
         }
-
     }
 
     public void deleteAllDestroyed() {
@@ -128,10 +143,15 @@ public class PlayScreen extends Base2DScreen {
         for (int i = 0; i < stars.length; i++) {
             stars[i].draw(batch);
         }
-        if(!mainShip.isDestroyed())mainShip.draw(batch);
-        bulletPool.drawActiveObjects(batch);
-        enemyPool.drawActiveObjects(batch);
         explosionPool.drawActiveObjects(batch);
+        if (!mainShip.isDestroyed()) {
+            mainShip.draw(batch);
+            bulletPool.drawActiveObjects(batch);
+            enemyPool.drawActiveObjects(batch);
+        } else {
+            gameOver.draw(batch);
+            newGame.draw(batch);
+        }
         batch.end();
     }
 
@@ -142,6 +162,8 @@ public class PlayScreen extends Base2DScreen {
             stars[i].resize(worldBounds);
         }
         mainShip.resize(worldBounds);
+        gameOver.resize(worldBounds);
+        newGame.resize(worldBounds);
     }
 
     @Override
@@ -149,6 +171,7 @@ public class PlayScreen extends Base2DScreen {
         bgTexture.dispose();
         textureAtlas.dispose();
         soundGame.musicPlayScreen.dispose();
+        soundGame.musicMenuScreen.dispose();
         soundGame.soundExplosion.dispose();
         soundGame.soundShoot.dispose();
         super.dispose();
@@ -169,12 +192,22 @@ public class PlayScreen extends Base2DScreen {
     @Override
     public boolean touchDown(Vector2 touch, int pointer) {
         mainShip.touchDown(touch, pointer);
+        newGame.touchDown(touch, pointer);
         return super.touchDown(touch, pointer);
     }
 
     @Override
     public boolean touchUp(Vector2 touch, int pointer) {
         mainShip.touchUp(touch, pointer);
+        newGame.touchUp(touch, pointer);
         return super.touchUp(touch, pointer);
+    }
+
+    @Override
+    public void actionPerformed(Object src) {
+        if (src == newGame) {
+            frags = 0;
+            MenuScreen.playScreen.setScreen(new PlayScreen());
+        }
     }
 }
