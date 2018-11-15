@@ -6,8 +6,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Align;
 import com.witbash.base.ActionListener;
 import com.witbash.base.Base2DScreen;
+import com.witbash.base.Font;
 import com.witbash.math.Rect;
 import com.witbash.pool.BulletPool;
 import com.witbash.pool.EnemyPool;
@@ -27,6 +29,14 @@ import java.util.List;
 public class PlayScreen extends Base2DScreen implements ActionListener {
 
     private static final int STAR_COUNT = 128;
+
+    private static final String FRAGS = "FRAGS: ";
+    private static final String HP = "HP: ";
+    private static final String LEVEL = "LEVEL: ";
+
+    private StringBuilder sbFrags = new StringBuilder();
+    private StringBuilder sbHP = new StringBuilder();
+    private StringBuilder sbLevel = new StringBuilder();
 
     private int frags;
 
@@ -49,6 +59,8 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
     private GameOver gameOver;
     private NewGame newGame;
 
+    private Font font;
+
     @Override
     public void show() {
         super.show();
@@ -69,6 +81,9 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
         soundGame.musicPlayScreen.play();
         gameOver = new GameOver(textureAtlas, this);
         newGame = new NewGame(textureAtlas, this);
+
+        font = new Font("font/font.fnt", "font/font.png");
+        font.setFonSize(0.03f);
     }
 
     @Override
@@ -89,7 +104,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
             mainShip.update(delta);
             bulletPool.updateActiveObjects(delta);
             enemyPool.updateActiveObjects(delta);
-            enemiesEmmiter.generate(delta);
+            enemiesEmmiter.generate(delta,frags);
         } else {
             soundGame.musicPlayScreen.dispose();
             soundGame.musicMenuScreen.play();
@@ -123,7 +138,9 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
                 if (enemy.isBulletCollision(bullet)) {
                     bullet.destroy();
                     enemy.damage(bullet.getDamage());
-                    frags++;
+                    if (enemy.isDestroyed()) {
+                        frags++;
+                    }
                 }
             }
         }
@@ -152,7 +169,17 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
             gameOver.draw(batch);
             newGame.draw(batch);
         }
+        printInfo();
         batch.end();
+    }
+
+    public void printInfo() {
+        sbFrags.setLength(0);
+        sbHP.setLength(0);
+        sbLevel.setLength(0);
+        font.draw(batch, sbFrags.append(FRAGS).append(frags), worldBounds.getLeft(), worldBounds.getTop());
+        font.draw(batch, sbHP.append(HP).append(mainShip.getHp()), worldBounds.pos.x, worldBounds.getTop(),Align.center);
+        font.draw(batch, sbLevel.append(LEVEL).append(enemiesEmmiter.getLevel()), worldBounds.getRight(), worldBounds.getTop(),Align.right);
     }
 
     @Override
@@ -174,6 +201,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
         soundGame.musicMenuScreen.dispose();
         soundGame.soundExplosion.dispose();
         soundGame.soundShoot.dispose();
+        font.dispose();
         super.dispose();
     }
 
@@ -207,6 +235,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
     public void actionPerformed(Object src) {
         if (src == newGame) {
             frags = 0;
+            enemiesEmmiter.setLevel(1);
             MenuScreen.playScreen.setScreen(new PlayScreen());
         }
     }

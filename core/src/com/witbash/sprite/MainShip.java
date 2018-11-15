@@ -171,4 +171,9 @@ public class MainShip extends Ship {
         hp = 0;
         super.destroy();
     }
+
+    @Override
+    public int getHp() {
+        return super.getHp();
+    }
 }

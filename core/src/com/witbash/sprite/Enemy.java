@@ -5,9 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.witbash.base.Ship;
 import com.witbash.math.Rect;
 import com.witbash.pool.BulletPool;
-import com.witbash.pool.EnemyPool;
 import com.witbash.pool.ExplosionPool;
-import com.witbash.utils.Regions;
 
 public class Enemy extends Ship {
 
