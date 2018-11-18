@@ -13,7 +13,7 @@ public class ButtonPlay extends GameButton {
 
     @Override
     public void resize(Rect worldBounds) {
-        setRight(0.23f);
-        setTop(0.38f);
+        setRight(worldBounds.getRight());
+        setBottom(worldBounds.getBottom());
     }
 }

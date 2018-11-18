@@ -13,8 +13,8 @@ public class ButtonClose extends GameButton {
 
     @Override
     public void resize(Rect worldBounds) {
-        setRight(0.38f);
-        setTop(0.5f);
+        setRight(worldBounds.getRight());
+        setTop(worldBounds.getTop());
     }
 }
 
