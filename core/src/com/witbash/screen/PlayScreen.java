@@ -14,6 +14,7 @@ import com.witbash.math.Rect;
 import com.witbash.pool.BulletPool;
 import com.witbash.pool.EnemyPool;
 import com.witbash.pool.ExplosionPool;
+import com.witbash.pool.HeartPool;
 import com.witbash.sound.SoundGame;
 import com.witbash.sprite.Background;
 import com.witbash.sprite.Bullet;
@@ -44,6 +45,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
     private Texture bgTexture;
 
     private TextureAtlas textureAtlas;
+    private TextureAtlas textureAtlasHeart;
     private Star[] stars;
 
     private MainShip mainShip;
@@ -55,6 +57,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
     private EnemyPool enemyPool;
     private EnemiesEmmiter enemiesEmmiter;
     private ExplosionPool explosionPool;
+    private HeartPool heartPool;
 
     private GameOver gameOver;
     private NewGame newGame;
@@ -67,17 +70,19 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
         bgTexture = new Texture("bg.png");
         background = new Background(new TextureRegion(bgTexture));
         textureAtlas = new TextureAtlas("mainAtlas.tpack");
+        textureAtlasHeart = new TextureAtlas("brokenHeart.pack");
         stars = new Star[STAR_COUNT];
         for (int i = 0; i < stars.length; i++) {
             stars[i] = new Star(textureAtlas);
         }
         explosionPool = new ExplosionPool(textureAtlas);
+        heartPool = new HeartPool(textureAtlasHeart,worldBounds);
         bulletPool = new BulletPool();
         mainShip = new MainShip(textureAtlas, explosionPool, bulletPool);
         enemyPool = new EnemyPool(bulletPool, explosionPool, worldBounds);
         enemiesEmmiter = new EnemiesEmmiter(enemyPool, worldBounds, textureAtlas);
         soundGame.musicPlayScreen.setLooping(true);
-        soundGame.musicPlayScreen.setVolume(0.4f);
+        soundGame.musicPlayScreen.setVolume(0.3f);
         soundGame.musicPlayScreen.play();
         gameOver = new GameOver(textureAtlas, this);
         newGame = new NewGame(textureAtlas, this);
@@ -104,6 +109,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
             mainShip.update(delta);
             bulletPool.updateActiveObjects(delta);
             enemyPool.updateActiveObjects(delta);
+            heartPool.updateActiveObjects(delta);
             enemiesEmmiter.generate(delta,frags);
         } else {
             soundGame.musicPlayScreen.dispose();
@@ -128,6 +134,11 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
             if (mainShip.isBulletCollision(bullet)) {
                 bullet.destroy();
                 mainShip.damage(bullet.getDamage());
+                if(mainShip.getHp()>0){
+                    heartPool.removeHeart(mainShip);
+                    soundGame.soundDamage.setVolume(1,0.5f);
+                    soundGame.soundDamage.play(0.5f);
+                }
             }
         }
 
@@ -150,6 +161,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
         bulletPool.freeAllDestroyedActiveObjects();
         enemyPool.freeAllDestroyedActiveObjects();
         explosionPool.freeAllDestroyedActiveObjects();
+        heartPool.freeAllDestroyedActiveObjects();
     }
 
     public void draw() {
@@ -165,6 +177,7 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
             mainShip.draw(batch);
             bulletPool.drawActiveObjects(batch);
             enemyPool.drawActiveObjects(batch);
+            heartPool.drawActiveObjects(batch);
         } else {
             gameOver.draw(batch);
             newGame.draw(batch);
@@ -197,10 +210,12 @@ public class PlayScreen extends Base2DScreen implements ActionListener {
     public void dispose() {
         bgTexture.dispose();
         textureAtlas.dispose();
+        textureAtlasHeart.dispose();
         soundGame.musicPlayScreen.dispose();
         soundGame.musicMenuScreen.dispose();
         soundGame.soundExplosion.dispose();
         soundGame.soundShoot.dispose();
+        soundGame.soundDamage.dispose();
         font.dispose();
         super.dispose();
     }

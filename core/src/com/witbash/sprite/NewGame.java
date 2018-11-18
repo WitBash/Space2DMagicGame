@@ -14,6 +14,6 @@ public class NewGame extends GameButton {
 
     @Override
     public void resize(Rect worldBounds) {
-        setBottom(-0.1f);
+        setBottom(-0.15f);
     }
 }
